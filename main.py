@@ -67,5 +67,3 @@ def view_server(serverID):
     _data["invite"] = f"https://discord.gg/{inv['code']}"
 
     return render_template('view_server.html', server=server, discord=_data, **settings)
-
-app.run(debug=True)
