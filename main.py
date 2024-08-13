@@ -50,17 +50,22 @@ def index():
 @app.route(**route_for('view_server_default'), defaults={"serverID": None})
 @app.route(**route_for('view_server'))
 def view_server(serverID):
-    if not serverID:
-        redirect(url_for('index'))
+    if serverID is None:
+        return redirect(url_for('index'))  # Ensure to return here
 
-    server = Servers.get_one(_id=int(serverID))
+    try:
+        serverID_int = int(serverID)
+    except ValueError:
+        return redirect(url_for('index'))  # Redirect if conversion fails
 
-    _data = discordAPI.get_guild(serverID)
+    server = Servers.get_one(_id=serverID_int)
+
+    _data = discordAPI.get_guild(serverID_int)
 
     inv = discordAPI.get_invite(server['invite']).json()
 
-    _data["invite"]= f"https://discord.gg/{inv['code']}"
+    _data["invite"] = f"https://discord.gg/{inv['code']}"
 
     return render_template('view_server.html', server=server, discord=_data, **settings)
 
-app.run(debug=True)
+app.run(debug=True,host='0.0.0.0',port=int(os.environ.get('PORT', 5000)))
